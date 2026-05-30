@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消防設備 総合クイズ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(160deg,#0d0800 0%,#1a0d00 40%,#0a0a0f 100%);font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:#f0e8d8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(255,90,0,0.18) 0%,transparent 60%);pointer-events:none}
+.screen{width:100%;max-width:520px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#top-screen{text-align:center;animation:fadeUp .7s ease}
+#title-screen{text-align:center;animation:fadeUp .5s ease}
+.top-emoji{font-size:60px;margin-bottom:4px}
+.top-h1{font-size:26px;font-weight:900;letter-spacing:.06em;color:#ff6b35;text-shadow:0 0 30px rgba(255,107,53,0.5);margin-bottom:4px}
+.top-sub{font-size:13px;color:#907060;margin-bottom:32px}
+.category-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:32px}
+.cat-btn{background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.3);border-radius:18px;padding:20px 24px;text-align:left;cursor:pointer;font-family:inherit;transition:all .2s ease}
+.cat-btn:hover{background:rgba(255,107,53,0.18);transform:translateY(-2px)}
+.cat-btn:active{opacity:.85}
+.cat-icon{font-size:28px;margin-bottom:6px}
+.cat-title{font-size:17px;font-weight:800;color:#ff6b35;margin-bottom:4px}
+.cat-desc{font-size:12px;color:#907060;line-height:1.6}
+.btn-primary{background:linear-gradient(135deg,#ff6b35,#d43000);border:none;border-radius:50px;padding:16px 52px;font-size:18px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:.1em;box-shadow:0 8px 30px rgba(255,80,0,0.45);font-family:inherit}
+.btn-primary:active{opacity:.85}
+.btn-back{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:50px;padding:10px 28px;font-size:14px;font-weight:700;color:#a09080;cursor:pointer;font-family:inherit;margin-bottom:20px}
+.title-emoji{font-size:50px;margin-bottom:4px}
+.title-h1{font-size:22px;font-weight:900;color:#ff6b35;text-shadow:0 0 30px rgba(255,107,53,0.5);margin-bottom:4px;line-height:1.4}
+.title-sub{font-size:12px;color:#907060;margin-bottom:24px}
+.title-box{background:rgba(255,107,53,0.07);border:1px solid rgba(255,107,53,0.22);border-radius:16px;padding:16px 20px;margin-bottom:28px;text-align:left}
+.title-box p{font-size:12px;color:#b09070;line-height:1.9}
+.progress-wrap{margin-bottom:18px}
+.progress-labels{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-size:12px;color:#907060}
+.progress-score{font-size:12px;color:#ff6b35}
+.progress-bar-bg{height:3px;background:rgba(255,255,255,0.08);border-radius:99px}
+.progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6b35,#ff4000);transition:width .5s ease}
+.q-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,53,0.2);border-radius:18px;padding:24px 20px;margin-bottom:16px}
+.q-label{font-size:10px;letter-spacing:.2em;color:#ff6b35;margin-bottom:10px;font-weight:700}
+.q-text{font-size:16px;font-weight:700;line-height:1.75;color:#f0e8d8}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.choice-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 8px;font-size:15px;font-weight:800;color:#f0e8d8;cursor:pointer;transition:all .2s ease;font-family:inherit;width:100%}
+.choice-btn:hover:not(:disabled){background:rgba(255,107,53,0.15)}
+.choice-btn.correct{background:rgba(60,200,100,0.18);border-color:rgba(60,200,100,0.5);color:#7fffaa}
+.choice-btn.wrong{background:rgba(255,60,60,0.18);border-color:rgba(255,60,60,0.5);color:#ffaaaa}
+.choice-btn:disabled{cursor:default}
+.result-label{text-align:center;padding:10px;margin-bottom:12px;font-size:15px;font-weight:800}
+.result-correct{color:#7fffaa}
+.result-wrong{color:#ffaaaa}
+.law-toggle{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,200,100,0.3);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;color:#f7c948;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-family:inherit}
+.law-toggle.open{background:rgba(255,200,100,0.12)}
+.law-box{background:rgba(255,200,100,0.07);border:1px solid rgba(255,200,100,0.2);border-radius:12px;padding:16px;margin-bottom:12px;animation:fadeUp .25s ease}
+.law-text{font-size:12px;line-height:1.9;color:#e8d8b0;white-space:pre-line}
+.btn-next{width:100%;background:linear-gradient(135deg,#ff6b35,#d43000);border:none;border-radius:50px;padding:14px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 4px 20px rgba(255,80,0,0.35);font-family:inherit}
+#result-screen{text-align:center;animation:fadeUp .6s ease}
+.result-emoji{font-size:56px;margin-bottom:6px}
+.result-rank{font-size:20px;font-weight:900;margin-bottom:4px}
+.result-score-big{font-size:52px;font-weight:900;color:#f0e8d8;margin:14px 0 2px}
+.result-score-total{font-size:22px;color:#907060}
+.result-pct{font-size:26px;font-weight:800;margin-bottom:28px}
+.review-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:24px;text-align:left;max-height:280px;overflow-y:auto}
+.review-title{font-size:11px;color:#907060;letter-spacing:.15em;margin-bottom:10px}
+.review-item{padding:10px 0;display:flex;gap:8px;align-items:flex-start}
+.review-item+.review-item{border-top:1px solid rgba(255,255,255,0.05)}
+.review-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.review-desc{font-size:12px;color:#c0a888;line-height:1.5;margin-bottom:3px}
+.review-ans{font-size:13px;font-weight:700}
+.review-law{font-size:10px;color:#806050;margin-top:4px;line-height:1.6}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<!-- TOP: カテゴリ選択 -->
+<div id="top-screen" class="screen">
+  <div class="top-emoji">🔥</div>
+  <h1 class="top-h1">消防設備 総合クイズ</h1>
+  <p class="top-sub">自動火災報知設備・試験対策</p>
+  <div class="category-grid">
+    <button class="cat-btn" onclick="selectCategory('time')">
+      <div class="cat-icon">⏱️</div>
+      <div class="cat-title">時間編</div>
+      <div class="cat-desc">全20問・受信機・感知器・電源の作動時間</div>
+    </button>
+    <button class="cat-btn" onclick="selectCategory('area')">
+      <div class="cat-icon">📐</div>
+      <div class="cat-title">面積編</div>
+      <div class="cat-desc">全20問・感知器の警戒面積・警戒区域</div>
+    </button>
+    <button class="cat-btn" onclick="selectCategory('dist')">
+      <div class="cat-icon">📏</div>
+      <div class="cat-title">距離編</div>
+      <div class="cat-desc">全20問・取付高さ・離隔距離・歩行距離</div>
+    </button>
+  </div>
+</div>
+
+<!-- TITLE: 各カテゴリ説明 -->
+<div id="title-screen" class="screen hidden">
+  <button class="btn-back" onclick="show('top-screen')">← カテゴリに戻る</button>
+  <div class="title-emoji" id="title-emoji"></div>
+  <h1 class="title-h1" id="title-h1"></h1>
+  <p class="title-sub" id="title-sub"></p>
+  <div class="title-box">
+    <p>✦ 説明文を読んで、正しい答えを選ぼう<br>✦ 回答後に法的根拠を確認できる<br>✦ 消防設備士・火災原因調査の試験対策に</p>
+  </div>
+  <button class="btn-primary" onclick="startQuiz()">スタート</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen hidden">
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span class="progress-label" id="q-counter">問題 1 / 20</span>
+      <span class="progress-score" id="q-score">正解 0問</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+  </div>
+  <div class="q-card">
+    <div class="q-label" id="q-label">この説明の時間は？</div>
+    <p class="q-text" id="q-text"></p>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback hidden" id="feedback">
+    <div class="result-label" id="result-label"></div>
+    <button class="law-toggle" id="law-toggle" onclick="toggleLaw()">
+      <span id="law-toggle-text">📋 法的根拠・解説を見る</span>
+      <span id="law-arrow">▼</span>
+    </button>
+    <div class="law-box hidden" id="law-box"><p class="law-text" id="law-text"></p></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">次の問題 →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen hidden">
+  <div class="result-emoji" id="result-emoji"></div>
+  <div class="result-rank" id="result-rank"></div>
+  <div class="result-score-big" id="result-score-big"></div>
+  <div class="result-pct" id="result-pct"></div>
+  <div class="review-box">
+    <div class="review-title">全問解答結果</div>
+    <div id="review-list"></div>
+  </div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn-primary" onclick="startQuiz()">もう一度挑戦</button>
+    <button class="btn-back" style="margin-bottom:0" onclick="show('top-screen')">カテゴリ選択へ</button>
+  </div>
+</div>
+
+<script>
+const allData = {
+  time: [
+  { time: "5秒", description: "P型1級受信機の火災表示試験の作動時間", law: "消防法施行規則 第24条第4号\nP型1級受信機は、火災信号受信から5秒以内に火災表示を行わなければならない。" },
+  { time: "10秒", description: "差動式スポット型（蓄積型）の蓄積時間上限", law: "消防法施行規則 第23条第4項\n蓄積式感知器の蓄積時間は10秒を超えてはならない（差動式スポット型）。" },
+  { time: "30秒", description: "煙感知器（アナログ式）の蓄積時間上限", law: "消防法施行規則 第23条第4項\nアナログ式煙感知器の蓄積時間上限は30秒とされている。" },
+  { time: "40秒", description: "差動式分布型感知器（空気管式）の蓄積時間上限", law: "消防法施行規則 第23条第4項\n差動式分布型感知器（空気管式）の蓄積時間は40秒を超えてはならないと規定されている。" },
+  { time: "60秒", description: "中継器が電源遮断後に正常な機能を維持しなければならない最低時間", law: "消防法施行規則 第24条第7号\n中継器は、電源遮断後60秒以上正常に機能を維持する性能を有すること。" },
+  { time: "1分", description: "G型受信機のガス漏れ表示の継続時間", law: "消防法施行規則 第24条の2\nG型受信機はガス漏れ信号受信後、1分以上ガス漏れ表示を継続しなければならない。" },
+  { time: "2分", description: "非常電源（蓄電池）への切替時間", law: "消防法施行規則 第24条第5号\n常用電源が断たれた場合、2分以内に非常電源（蓄電池）に自動切替されなければならない。" },
+  { time: "3分", description: "ガス漏れ火災警報設備の音声警報が鳴動を継続しなければならない最低時間", law: "消防法施行規則 第24条の2の3\nガス漏れ火災警報設備の音声警報装置は、3分以上継続して警報を発する性能を有すること。" },
+  { time: "5分", description: "受信機の主音響停止後の再鳴動時間", law: "消防法施行規則 第24条第6号\n主音響を停止した場合でも、5分以内に再鳴動する機能を有しなければならない。" },
+  { time: "10分", description: "自動試験機能の作動周期（最小）", law: "消防法施行規則 第24条の2の2\n自動試験機能は、最低10分ごとに作動し、機器の異常を自動確認する仕様であること。" },
+  { time: "20分", description: "避難完了を想定した地区音響の鳴動継続時間", law: "消防法施行規則 第25条の2\n地区音響装置は、避難完了を想定して20分以上継続して鳴動できる性能を有すること。" },
+  { time: "30分", description: "非常放送設備との連動遮断時間", law: "消防法施行規則 第25条の2第2項\n非常警報設備と非常放送設備が連動する場合、火災信号受信から30分間は遮断できないこと。" },
+  { time: "60分", description: "P型受信機の予備電源の監視状態継続時間", law: "消防法施行規則 第24条第5号ロ\nP型受信機の予備電源は、監視状態を60分間継続できる容量を有しなければならない。" },
+  { time: "90分", description: "P型受信機の非常電源供給時間（火災時）", law: "消防法施行規則 第24条第5号ハ\nP型受信機の非常電源は、火災表示の継続及び音響装置の鳴動を90分間持続できる容量であること。" },
+  { time: "1時間", description: "非常電源専用受電設備が規定の電圧を供給し続けなければならない時間（一般建築物）", law: "消防法施行規則 第12条第1項第4号\n非常電源専用受電設備は、1時間以上継続して規定の電圧を供給できる性能であること。" },
+  { time: "10時間", description: "G型受信機の予備電源の監視状態維持時間", law: "消防法施行規則 第24条の2第3項\nG型受信機の予備電源は、監視状態を10時間以上維持できる容量であること。" },
+  { time: "24時間", description: "R型受信機の非常電源（蓄電池）の監視継続時間", law: "消防法施行規則 第24条第5号ニ\nR型受信機の非常電源は、監視状態を24時間継続できる容量を有しなければならない。" },
+  { time: "72時間", description: "高層建築物等に設置する受信機の非常電源の監視状態維持時間", law: "消防法施行規則 第24条第5号ホ\n高層建築物等に設置する受信機の非常電源は、監視状態を72時間以上維持できること。" },
+  { time: "10秒", description: "P型2級受信機が火災信号を受信してから火災表示を行うまでの時間", law: "消防法施行規則 第24条第4号\nP型2級受信機は、火災信号受信から10秒以内に火災表示を行わなければならない。" },
+  { time: "5秒", description: "複合式感知器（熱煙複合）が試験信号に対して作動しなければならない時間", law: "感知器・発信機の規格省令 第11条\n複合式感知器は、試験信号に対して5秒以内に作動しなければならない。" },
+],
+  area: [
+  {
+    area: "150m²",
+    description: "差動式スポット型感知器（1種）の1個あたりの警戒面積（主要構造部が耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、差動式スポット型1種の警戒面積は150㎡以下。"
+  },
+  {
+    area: "70m²",
+    description: "差動式スポット型感知器（2種）の1個あたりの警戒面積（主要構造部が耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、差動式スポット型2種の警戒面積は70㎡以下。"
+  },
+  {
+    area: "30m²",
+    description: "差動式スポット型感知器（2種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、差動式スポット型2種の警戒面積は30㎡以下。"
+  },
+  {
+    area: "150m²",
+    description: "煙感知器（2種）の1個あたりの警戒面積（耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、煙感知器2種の警戒面積は150㎡以下。"
+  },
+  {
+    area: "75m²",
+    description: "煙感知器（2種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、煙感知器2種の警戒面積は75㎡以下。"
+  },
+  {
+    area: "600m²",
+    description: "自動火災報知設備の1警戒区域の面積上限（原則）",
+    law: "消防法施行規則 第23条第1項\n1警戒区域の面積は原則600㎡以下とする。"
+  },
+  {
+    area: "500m²",
+    description: "光電式分離型感知器の警戒区域の面積上限",
+    law: "消防法施行規則 第23条第1項\n光電式分離型感知器を用いる場合の警戒区域面積は500㎡以下。"
+  },
+  {
+    area: "50m²",
+    description: "定温式スポット型感知器（特種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、定温式スポット型特種の警戒面積は50㎡以下。"
+  },
+  {
+    area: "60m²",
+    description: "定温式スポット型感知器（1種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、定温式スポット型1種の警戒面積は60㎡以下。"
+  },
+  {
+    area: "20m²",
+    description: "定温式スポット型感知器（2種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、定温式スポット型2種の警戒面積は20㎡以下。"
+  },
+  {
+    area: "1000m²",
+    description: "自動火災報知設備の警戒区域の面積上限（光電式分離型・炎感知器を使用する場合）",
+    law: "消防法施行規則 第23条第1項ただし書き\n炎感知器または光電式分離型を使用する場合は1000㎡以下まで認められる。"
+  },
+  {
+    area: "100m²",
+    description: "差動式スポット型感知器（1種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、差動式スポット型1種の警戒面積は100㎡以下。"
+  },
+  {
+    area: "90m²",
+    description: "定温式スポット型感知器（特種）の1個あたりの警戒面積（耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、定温式スポット型特種の警戒面積は90㎡以下。"
+  },
+  {
+    area: "70m²",
+    description: "定温式スポット型感知器（1種）の1個あたりの警戒面積（耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、定温式スポット型1種の警戒面積は70㎡以下。"
+  },
+  {
+    area: "40m²",
+    description: "定温式スポット型感知器（2種）の1個あたりの警戒面積（耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、定温式スポット型2種の警戒面積は40㎡以下。"
+  },
+  {
+    area: "50m²",
+    description: "煙感知器（3種）の1個あたりの警戒面積（耐火構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m未満の場合、煙感知器3種の警戒面積は50㎡以下。"
+  },
+  {
+    area: "25m²",
+    description: "煙感知器（3種）の1個あたりの警戒面積（その他構造・取付高さ4m未満）",
+    law: "消防法施行規則 第23条第2項\nその他構造・取付高さ4m未満の場合、煙感知器3種の警戒面積は25㎡以下。"
+  },
+  {
+    area: "50m²",
+    description: "差動式分布型感知器（空気管式）の1個あたりの警戒面積（耐火構造・取付高さ8m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ8m未満の場合、差動式分布型（空気管式）の警戒面積は50㎡以下。"
+  },
+  {
+    area: "300m²",
+    description: "1警戒区域の面積上限（主要構造部が耐火構造で2の階にわたる場合の特例）",
+    law: "消防法施行規則 第23条第1項\n2階にわたる場合の警戒区域は300㎡以下でかつ階段等の条件を満たす場合に認められる。"
+  },
+  {
+    area: "45m²",
+    description: "差動式スポット型感知器（2種）の1個あたりの警戒面積（耐火構造・取付高さ4m以上8m未満）",
+    law: "消防法施行規則 第23条第2項\n耐火構造・取付高さ4m以上8m未満の場合、差動式スポット型2種の警戒面積は45㎡以下。"
+  }
+],
+  dist: [
+  { dist: "50m以下", description: "1警戒区域の一辺の長さの上限（原則）", law: "消防法施行規則 第23条第1項\n1警戒区域の一辺の長さは50m以下とする。ただし光電式分離型感知器を用いる場合は100m以下。" },
+  { dist: "100m以下", description: "光電式分離型感知器を用いる場合の1警戒区域の一辺の長さの上限", law: "消防法施行規則 第23条第1項\n光電式分離型感知器を用いる場合の一辺の長さは100m以下とする。" },
+  { dist: "100m以下", description: "光電式分離型感知器の送光部から受光部までの最大距離", law: "感知器・発信機の規格省令 第15条\n光電式分離型感知器の送光部と受光部の間の距離は100m以下とする。" },
+  { dist: "5m以上", description: "光電式分離型感知器の公称監視距離の下限", law: "感知器・発信機の規格省令 第15条\n光電式分離型感知器の公称監視距離は5m以上とする。" },
+  { dist: "1.5m以内", description: "感知器の取付面から感知器下端までの距離の上限（煙感知器を壁に設ける場合の距離）", law: "消防法施行規則 第23条第4項\n煙感知器を壁に設ける場合は、天井から1.5m以内の位置に設けること。" },
+  { dist: "0.6m以上", description: "光電式分離型感知器の送光部と受光部の設置高さ（床面からの最低距離）", law: "消防法施行規則 第23条第4項\n光電式分離型感知器は床面から0.6m以上1.5m以下の高さに設置すること（建物構造による）。" },
+  { dist: "15m以下", description: "差動式スポット型感知器（1種）の取付高さの上限", law: "消防法施行規則 第23条第2項\n差動式スポット型1種は取付高さ15m未満の場所に設置できる。" },
+  { dist: "8m未満", description: "定温式スポット型感知器（特種・1種）の取付高さの上限", law: "消防法施行規則 第23条第2項\n定温式スポット型感知器（特種・1種）は取付高さ8m未満の場所に使用する。" },
+  { dist: "4m未満", description: "定温式スポット型感知器（2種）を設置できる場所の取付高さ（天井高さの条件）", law: "消防法施行規則 第23条第2項 別表第一\n定温式スポット型2種は、天井の高さ（取付高さ）が4m未満の場所にのみ設置することができる。4m以上の場所には使用不可。" },
+  { dist: "20m以下", description: "煙感知器（1種・2種）の取付高さの上限", law: "消防法施行規則 第23条第2項\n煙感知器1種・2種は取付高さ20m未満の場所に設置できる。" },
+  { dist: "50m以下", description: "各階の各部分から発信機までの歩行距離の上限", law: "消防法施行規則 第24条第7号\n発信機は、各階ごとに、その階の各部分から一の発信機までの歩行距離が50m以下となるよう設けること。" },
+  { dist: "0.8m以上1.5m以下", description: "発信機の操作面の床面からの設置高さの範囲", law: "消防法施行規則 第24条第7号\n発信機の操作面は床面から0.8m以上1.5m以下の高さに設けること。" },
+  { dist: "25m以下", description: "非常警報設備の操作部から各部分までの歩行距離の上限", law: "消防法施行規則 第25条の2\n非常警報設備の操作部は、各部分からの歩行距離が25m以下となるよう設けること。" },
+  { dist: "10m以下", description: "地区音響装置の取付高さの上限（床面からの高さ）", law: "消防法施行規則 第24条第9号\n地区音響装置は床面から取付高さが10m以下となる位置に設けること。" },
+  { dist: "0.6m以内", description: "煙感知器を壁・はりから離して設置しなければならない距離（取付面の下方）", law: "消防法施行規則 第23条第4項\n煙感知器は、壁またははりから0.6m以上離れた位置に設けること。" },
+  { dist: "1.5m以上", description: "煙感知器を換気口・空調吹出口から離して設置しなければならない距離", law: "消防法施行規則 第23条第4項\n煙感知器は換気口・エアコン吹出口等から1.5m以上離して設置すること。" },
+  { dist: "600m以下", description: "炎感知器（道路型）の公称監視距離の上限", law: "感知器・発信機の規格省令 第17条\n炎感知器（道路型）の公称監視距離は600m以下とする。" },
+  { dist: "5m以内", description: "差動式分布型感知器（空気管式）の検出部から空気管端までの距離の上限", law: "消防法施行規則 第23条第4項\n差動式分布型感知器（空気管式）の検出部から空気管の端までの距離は5m以内とすること。" },
+  { dist: "20m以上", description: "差動式分布型感知器（空気管式）の空気管の露出部分の最小長さ", law: "消防法施行規則 第23条第4項\n空気管式の露出部分の長さは1検出部につき20m以上とすること。" },
+  { dist: "100m以下", description: "差動式分布型感知器（空気管式）の空気管の露出部分の最大長さ", law: "消防法施行規則 第23条第4項\n空気管式の露出部分の長さは1検出部につき100m以下とすること。" }
+]
+};
+
+const categoryInfo = {
+  time: { emoji: '⏱️', title: '時間編', sub: '全20問・四択・法的根拠付き解説', label: 'この説明の時間は？', key: 'time' },
+  area: { emoji: '📐', title: '面積編', sub: '全20問・四択・法的根拠付き解説', label: 'この説明の面積は？', key: 'area' },
+  dist: { emoji: '📏', title: '距離編', sub: '全20問・四択・法的根拠付き解説', label: 'この説明の距離は？', key: 'dist' },
+};
+
+let currentCategory = null;
+let questions = [], current = 0, score = 0, answers = [], lawVisible = false;
+
+function getAnswer(q) {
+  if (currentCategory === 'time') return q.time;
+  if (currentCategory === 'area') return q.area;
+  return q.dist;
+}
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  const info = categoryInfo[cat];
+  document.getElementById('title-emoji').textContent = info.emoji;
+  document.getElementById('title-h1').textContent = '自動火災報知設備
+' + info.title;
+  document.getElementById('title-sub').textContent = info.sub;
+  show('title-screen');
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function generateChoices(correctAns) {
+  const all = [...new Set(allData[currentCategory].map(q => getAnswer(q)))];
+  const others = all.filter(a => a !== correctAns);
+  return shuffle([correctAns, ...shuffle(others).slice(0, 3)]);
+}
+
+function startQuiz() {
+  const data = allData[currentCategory];
+  questions = shuffle(data).map(q => ({ ...q, choices: generateChoices(getAnswer(q)) }));
+  current = 0; score = 0; answers = [];
+  document.getElementById('q-label').textContent = categoryInfo[currentCategory].label;
+  show('quiz-screen');
+  renderQuestion();
+}
+
+function show(id) {
+  ['top-screen','title-screen','quiz-screen','result-screen'].forEach(s =>
+    document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function renderQuestion() {
+  const q = questions[current], total = questions.length;
+  const ans = getAnswer(q);
+  document.getElementById('q-counter').textContent = '問題 ' + (current + 1) + ' / ' + total;
+  document.getElementById('q-score').textContent = '正解 ' + score + '問';
+  document.getElementById('progress-bar').style.width = (current / total * 100) + '%';
+  document.getElementById('q-text').textContent = q.description;
+  document.getElementById('feedback').classList.add('hidden');
+  lawVisible = false;
+  const c = document.getElementById('choices');
+  c.innerHTML = '';
+  q.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn'; btn.textContent = choice;
+    btn.onclick = () => handleSelect(choice, ans, q);
+    c.appendChild(btn);
+  });
+}
+
+function handleSelect(choice, ans, q) {
+  const correct = choice === ans;
+  if (correct) score++;
+  answers.push({ ...q, chosen: choice, correct, ans });
+  document.querySelectorAll('.choice-btn').forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === ans) btn.classList.add('correct');
+    else if (btn.textContent === choice) btn.classList.add('wrong');
+  });
+  document.getElementById('feedback').classList.remove('hidden');
+  const label = document.getElementById('result-label');
+  label.textContent = correct ? '✓ 正解！' : '✗ 不正解　正解：' + ans;
+  label.className = 'result-label ' + (correct ? 'result-correct' : 'result-wrong');
+  document.getElementById('law-text').textContent = q.law;
+  document.getElementById('law-box').classList.add('hidden');
+  document.getElementById('law-toggle').classList.remove('open');
+  document.getElementById('law-toggle-text').textContent = '📋 法的根拠・解説を見る';
+  document.getElementById('law-arrow').textContent = '▼';
+  document.getElementById('btn-next').textContent = current + 1 >= questions.length ? '結果を見る 🏁' : '次の問題 →';
+}
+
+function toggleLaw() {
+  lawVisible = !lawVisible;
+  document.getElementById('law-box').classList.toggle('hidden', !lawVisible);
+  document.getElementById('law-toggle').classList.toggle('open', lawVisible);
+  document.getElementById('law-toggle-text').textContent = '📋 法的根拠・解説を' + (lawVisible ? '隠す' : '見る');
+  document.getElementById('law-arrow').textContent = lawVisible ? '▲' : '▼';
+}
+
+function nextQuestion() {
+  if (current + 1 >= questions.length) { showResult(); }
+  else { current++; renderQuestion(); }
+}
+
+function showResult() {
+  show('result-screen');
+  const total = questions.length, pct = Math.round(score / total * 100);
+  let emoji, rankLabel, rankColor;
+  if (pct === 100) { emoji = '🏆'; rankLabel = '消防設備士マスター'; rankColor = '#ff6b35'; }
+  else if (pct >= 80) { emoji = '🔥'; rankLabel = '消防士エキスパート'; rankColor = '#f7c948'; }
+  else if (pct >= 60) { emoji = '⭐'; rankLabel = '消防士見習い'; rankColor = '#6ec6ff'; }
+  else { emoji = '📖'; rankLabel = '要復習'; rankColor = '#a09080'; }
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-rank').textContent = rankLabel;
+  document.getElementById('result-rank').style.color = rankColor;
+  document.getElementById('result-score-big').innerHTML = score + ' <span class="result-score-total">/ ' + total + '</span>';
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-pct').style.color = rankColor;
+  document.getElementById('review-list').innerHTML = answers.map(a =>
+    '<div class="review-item"><span class="review-icon">' + (a.correct ? '✓' : '✗') + '</span><div>' +
+    '<div class="review-desc">' + a.description + '</div>' +
+    '<div class="review-ans" style="color:' + (a.correct ? '#7fffaa' : '#ffaaaa') + '">' +
+    (a.correct ? a.ans : a.chosen + ' → 正解: ' + a.ans) + '</div>' +
+    '<div class="review-law">' + a.law.split('\n')[0] + '</div></div></div>'
+  ).join('');
+}
+</script>
+</body>
+</html>
