@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消火器クイズ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(160deg,#0d0800 0%,#1a0d00 40%,#0a0a0f 100%);font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:#f0e8d8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;position:relative}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(255,90,0,0.18) 0%,transparent 60%);pointer-events:none}
+.screen{width:100%;max-width:520px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#top-screen{text-align:center;animation:fadeUp .7s ease}
+#title-screen{text-align:center;animation:fadeUp .5s ease}
+.top-emoji{font-size:60px;margin-bottom:4px}
+.top-h1{font-size:26px;font-weight:900;letter-spacing:.06em;color:#ff6b35;text-shadow:0 0 30px rgba(255,107,53,0.5);margin-bottom:4px}
+.top-sub{font-size:13px;color:#907060;margin-bottom:32px}
+.category-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:32px}
+.cat-btn{background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.3);border-radius:18px;padding:20px 24px;text-align:left;cursor:pointer;font-family:inherit;width:100%}
+.cat-btn:active{opacity:.85}
+.cat-icon{font-size:28px;margin-bottom:6px}
+.cat-title{font-size:17px;font-weight:800;color:#ff6b35;margin-bottom:4px}
+.cat-desc{font-size:12px;color:#907060;line-height:1.6}
+.btn-primary{background:linear-gradient(135deg,#ff6b35,#d43000);border:none;border-radius:50px;padding:16px 52px;font-size:18px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:.1em;box-shadow:0 8px 30px rgba(255,80,0,0.45);font-family:inherit}
+.btn-back{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:50px;padding:10px 28px;font-size:14px;font-weight:700;color:#a09080;cursor:pointer;font-family:inherit;margin-bottom:20px}
+.title-emoji{font-size:50px;margin-bottom:4px}
+.title-h1{font-size:22px;font-weight:900;color:#ff6b35;text-shadow:0 0 30px rgba(255,107,53,0.5);margin-bottom:4px;line-height:1.4}
+.title-sub{font-size:12px;color:#907060;margin-bottom:24px}
+.title-box{background:rgba(255,107,53,0.07);border:1px solid rgba(255,107,53,0.22);border-radius:16px;padding:16px 20px;margin-bottom:28px;text-align:left}
+.title-box p{font-size:12px;color:#b09070;line-height:1.9}
+.progress-wrap{margin-bottom:18px}
+.progress-labels{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-size:12px;color:#907060}
+.progress-score{font-size:12px;color:#ff6b35}
+.progress-bar-bg{height:3px;background:rgba(255,255,255,0.08);border-radius:99px}
+.progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6b35,#ff4000);transition:width .5s ease}
+.q-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,53,0.2);border-radius:18px;padding:24px 20px;margin-bottom:16px}
+.q-label{font-size:10px;letter-spacing:.2em;color:#ff6b35;margin-bottom:10px;font-weight:700}
+.q-text{font-size:16px;font-weight:700;line-height:1.75;color:#f0e8d8}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.choice-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 8px;font-size:15px;font-weight:800;color:#f0e8d8;cursor:pointer;transition:all .2s ease;font-family:inherit;width:100%}
+.choice-btn.correct{background:rgba(60,200,100,0.18);border-color:rgba(60,200,100,0.5);color:#7fffaa}
+.choice-btn.wrong{background:rgba(255,60,60,0.18);border-color:rgba(255,60,60,0.5);color:#ffaaaa}
+.choice-btn:disabled{cursor:default}
+.result-label{text-align:center;padding:10px;margin-bottom:12px;font-size:15px;font-weight:800}
+.result-correct{color:#7fffaa}
+.result-wrong{color:#ffaaaa}
+.law-toggle{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,200,100,0.3);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;color:#f7c948;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-family:inherit}
+.law-toggle.open{background:rgba(255,200,100,0.12)}
+.law-box{background:rgba(255,200,100,0.07);border:1px solid rgba(255,200,100,0.2);border-radius:12px;padding:16px;margin-bottom:12px}
+.law-text{font-size:12px;line-height:1.9;color:#e8d8b0;white-space:pre-line}
+.btn-next{width:100%;background:linear-gradient(135deg,#ff6b35,#d43000);border:none;border-radius:50px;padding:14px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 4px 20px rgba(255,80,0,0.35);font-family:inherit}
+#result-screen{text-align:center;animation:fadeUp .6s ease}
+.result-emoji{font-size:56px;margin-bottom:6px}
+.result-rank{font-size:20px;font-weight:900;margin-bottom:4px}
+.result-score-big{font-size:52px;font-weight:900;color:#f0e8d8;margin:14px 0 2px}
+.result-score-total{font-size:22px;color:#907060}
+.result-pct{font-size:26px;font-weight:800;margin-bottom:28px}
+.review-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:24px;text-align:left;max-height:280px;overflow-y:auto}
+.review-title{font-size:11px;color:#907060;letter-spacing:.15em;margin-bottom:10px}
+.review-item{padding:10px 0;display:flex;gap:8px;align-items:flex-start}
+.review-item+.review-item{border-top:1px solid rgba(255,255,255,0.05)}
+.review-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.review-desc{font-size:12px;color:#c0a888;line-height:1.5;margin-bottom:3px}
+.review-ans{font-size:13px;font-weight:700}
+.review-law{font-size:10px;color:#806050;margin-top:4px;line-height:1.6}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="top-screen" class="screen">
+  <div class="top-emoji">🧯</div>
+  <h1 class="top-h1">消火器 総合クイズ</h1>
+  <p class="top-sub">消防法・消防設備士試験対策</p>
+  <div class="category-grid">
+    <button class="cat-btn" onclick="selectCategory('dist')">
+      <div class="cat-icon">📏</div>
+      <div class="cat-title">距離編</div>
+      <div class="cat-desc">全20問・歩行距離・取付高さ・離隔距離</div>
+    </button>
+    <button class="cat-btn" onclick="selectCategory('time')">
+      <div class="cat-icon">⏱</div>
+      <div class="cat-title">時間編</div>
+      <div class="cat-desc">全20問・点検周期・耐用年数・報告期限</div>
+    </button>
+    <button class="cat-btn" onclick="selectCategory('area')">
+      <div class="cat-icon">📐</div>
+      <div class="cat-title">面積編</div>
+      <div class="cat-desc">全20問・算定面積・設置義務面積・能力単位</div>
+    </button>
+  </div>
+</div>
+<div id="title-screen" class="screen hidden">
+  <button class="btn-back" id="btn-back">← カテゴリに戻る</button>
+  <div class="title-emoji" id="title-emoji"></div>
+  <h1 class="title-h1" id="title-h1"></h1>
+  <p class="title-sub">全20問・四択・法的根拠付き解説</p>
+  <div class="title-box">
+    <p>✦ 説明文を読んで、正しい答えを選ぼう<br>✦ 回答後に法的根拠を確認できる</p>
+  </div>
+  <button class="btn-primary" id="btn-start">スタート</button>
+</div>
+<div id="quiz-screen" class="screen hidden">
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span class="progress-label" id="q-counter"></span>
+      <span class="progress-score" id="q-score"></span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+  </div>
+  <div class="q-card">
+    <div class="q-label" id="q-label"></div>
+    <p class="q-text" id="q-text"></p>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="hidden" id="feedback">
+    <div class="result-label" id="result-label"></div>
+    <button class="law-toggle" id="law-toggle">
+      <span id="law-toggle-text">📋 法的根拠・解説を見る</span>
+      <span id="law-arrow">▼</span>
+    </button>
+    <div class="law-box hidden" id="law-box"><p class="law-text" id="law-text"></p></div>
+    <button class="btn-next" id="btn-next">次の問題 →</button>
+  </div>
+</div>
+<div id="result-screen" class="screen hidden">
+  <div class="result-emoji" id="result-emoji"></div>
+  <div class="result-rank" id="result-rank"></div>
+  <div class="result-score-big" id="result-score-big"></div>
+  <div class="result-pct" id="result-pct"></div>
+  <div class="review-box">
+    <div class="review-title">全問解答結果</div>
+    <div id="review-list"></div>
+  </div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn-primary" id="btn-retry">もう一度挑戦</button>
+    <button class="btn-back" style="margin-bottom:0" id="btn-top">カテゴリ選択へ</button>
+  </div>
+</div>
+<script>
+var allData = {
+  dist: [
+    {ans:"20m以下", choices:["10m以下","15m以下","20m以下","30m以下"], description:"小型消火器の設置において、防火対象物の各部分から消火器までの歩行距離の上限", law:"消防法施行規則 第6条第6項\n小型消火器は防火対象物の各部分から歩行距離20m以下となるよう設置すること。"},
+    {ans:"30m以下", choices:["20m以下","25m以下","30m以下","50m以下"], description:"大型消火器の設置において、防火対象物の各部分から消火器までの歩行距離の上限", law:"消防法施行規則 第6条第6項\n大型消火器は防火対象物の各部分から歩行距離30m以下となるよう設置すること。"},
+    {ans:"15m以下", choices:["5m以下","10m以下","15m以下","20m以下"], description:"地下街における消火器の設置において、各部分から消火器までの歩行距離の上限", law:"消防法施行規則 第6条第6項\n地下街等では歩行距離15m以下となるよう消火器を設置すること。"},
+    {ans:"1.5m以下", choices:["0.8m以下","1.0m以下","1.5m以下","2.0m以下"], description:"消火器を壁掛け設置する場合の床面から消火器上端までの高さの上限", law:"消防法施行規則 第6条第7項\n消火器は床面からの高さが1.5m以下の箇所に設置しなければならない。"},
+    {ans:"0.15m以上", choices:["0.05m以上","0.10m以上","0.15m以上","0.30m以上"], description:"消火器を床面に置く場合の床面からの最低高さ（転倒防止・湿気対策）", law:"消防法施行規則 第6条第7項\n消火器は床面から0.15m以上の高さに設置すること（直置き禁止）。"},
+    {ans:"歩行距離で測る", choices:["直線距離で測る","水平距離で測る","歩行距離で測る","垂直距離で測る"], description:"消火器の設置距離を算定する際に用いる距離の測定方法", law:"消防法施行規則 第6条第6項\n消火器の設置距離の算定は歩行距離（実際に歩く経路）によって測定する。"},
+    {ans:"3m以上", choices:["1m以上","2m以上","3m以上","5m以上"], description:"二酸化炭素消火器の放射ノズルから人体までの安全離隔距離の目安", law:"消火器の技術上の規格を定める省令\n二酸化炭素消火器は窒息危険があるため密閉空間での使用に制限があり、人体への安全距離が設けられている。"},
+    {ans:"各階ごとに設置", choices:["建物全体で1箇所","出入口付近のみ","各階ごとに設置","地上階のみ"], description:"消防法が消火器の設置単位として定める基本原則", law:"消防法施行令 第10条第1項\n消火器は各階ごとに設置しなければならない。"},
+    {ans:"消火器から半径0.5m以内に障害物を置かない", choices:["消火器から半径0.3m以内","消火器から半径0.5m以内","消火器から半径1.0m以内","消火器から半径2.0m以内"], description:"消火器周囲の障害物に関する設置基準（取り出しやすさの確保）", law:"消防法施行規則 第6条\n消火器は使用に際して容易に持ち出せる位置に設置し、周囲に障害物を置かないこと。"},
+    {ans:"1m以上", choices:["0.5m以上","1m以上","1.5m以上","2m以上"], description:"消火器を加熱炉・暖房機器等の熱源から離して設置しなければならない最低距離", law:"消防法施行規則 第6条\n消火器は熱源から1m以上離れた位置に設置し、高温による変質・誤作動を防ぐこと。"},
+    {ans:"5m以内", choices:["1m以内","3m以内","5m以内","10m以内"], description:"消火器の位置を示す標識を掲げる位置（消火器からの距離の上限）", law:"消防法施行規則 第6条\n消火器の位置を示す標識は消火器から5m以内の見やすい位置に掲げること。"},
+    {ans:"0.8m以上1.5m以下", choices:["0.5m以上1.0m以下","0.8m以上1.5m以下","1.0m以上1.8m以下","1.2m以上2.0m以下"], description:"消火器格納箱の操作面（扉の取手等）の床面からの高さの推奨範囲", law:"消防法施行規則 第6条\n消火器格納箱は操作面が床面から0.8m以上1.5m以下の高さに設置することが望ましい。"},
+    {ans:"直近の出入口付近", choices:["建物中央","エレベーター横","直近の出入口付近","屋上"], description:"避難経路を考慮した消火器の優先設置場所", law:"消防法施行規則 第6条\n消火器は避難・消火活動を考慮し、出入口付近の見やすく取り出しやすい場所に設置すること。"},
+    {ans:"2m以上", choices:["0.5m以上","1m以上","2m以上","3m以上"], description:"ハロゲン化物消火器（ハロン1301等）の噴射時に人体から確保すべき安全距離", law:"消火器の技術上の規格を定める省令\nハロゲン化物消火器は毒性を考慮し、密閉空間では噴射後2m以上離れた安全な場所に退避すること。"},
+    {ans:"見やすく・取り出しやすい位置", choices:["廊下の中央","出入口から最も遠い場所","見やすく・取り出しやすい位置","壁の内側"], description:"消防法施行規則が消火器の設置場所について定める基本原則", law:"消防法施行規則 第6条第6項\n消火器は見やすく、かつ使用に際して容易に持ち出せる位置に設置すること。"},
+    {ans:"防火上有効な位置", choices:["廊下の中央部","最も広い部屋","防火上有効な位置","非常口の反対側"], description:"消防法施行令が消火器の設置位置について定める基本的な表現", law:"消防法施行令 第10条\n消火器は防火上有効な位置に設置しなければならない。"},
+    {ans:"能力単位に応じた本数", choices:["1本のみ","2本以上","能力単位に応じた本数","階数分の本数"], description:"消火器の設置本数の決定方法", law:"消防法施行令 第10条\n消火器の設置本数は算定した能力単位を満たすよう決定する。"},
+    {ans:"屋外・雨露にさらされない場所", choices:["屋外ならどこでも可","屋外・雨露にさらされない場所","完全屋内のみ","地下のみ"], description:"消火器の屋外設置に関する環境条件", law:"消防法施行規則 第6条\n消火器を屋外に設置する場合は、雨露にさらされない場所またはそれに準じた措置を講じること。"},
+    {ans:"格納箱に収納する", choices:["露出設置のみ","格納箱に収納する","チェーンで固定する","壁に塗り込む"], description:"屋外や湿気の多い場所に消火器を設置する際の対策", law:"消防法施行規則 第6条\n屋外や湿気の多い場所に設置する消火器は格納箱に収納して保護すること。"},
+    {ans:"消火器標識を掲げる", choices:["警報装置を設ける","消火器標識を掲げる","赤色灯を設置する","音声案内を設ける"], description:"消火器の設置箇所を明示するために行わなければならない措置", law:"消防法施行規則 第6条\n消火器を設置した箇所には消火器の位置を示す標識を掲げること。"}
+  ],
+  time: [
+    {ans:"6ヶ月ごと", choices:["1ヶ月ごと","3ヶ月ごと","6ヶ月ごと","1年ごと"], description:"消火器の外観点検（法定点検）の実施周期", law:"消防法施行規則 第31条の6第1項\n消火器の外観点検は6ヶ月ごとに実施しなければならない。"},
+    {ans:"1年ごと", choices:["6ヶ月ごと","1年ごと","2年ごと","3年ごと"], description:"消火器の総合点検（機能確認）の実施周期", law:"消防法施行規則 第31条の6\n消火器の総合点検は1年ごとに実施しなければならない。"},
+    {ans:"製造年から3年後・その後1年ごと", choices:["製造年から1年後・その後1年ごと","製造年から3年後・その後1年ごと","製造年から5年後・その後2年ごと","製造年から10年後のみ"], description:"蓄圧式消火器（粉末以外）の内部および機能確認の実施時期", law:"消防法施行規則 第31条の6第3項\n蓄圧式消火器（粉末を除く）は製造年から3年を経過したもの以降、1年ごとに内部・機能確認を行う。"},
+    {ans:"製造年から5年後・その後1年ごと", choices:["製造年から1年後・その後1年ごと","製造年から3年後・その後1年ごと","製造年から5年後・その後1年ごと","製造年から10年後のみ"], description:"粉末消火器（蓄圧式）の内部および機能確認の実施時期", law:"消防法施行規則 第31条の6第3項\n粉末消火器（蓄圧式）は製造年から5年を経過したもの以降、1年ごとに内部・機能確認を行う。"},
+    {ans:"製造年から3年後・その後1年ごと", choices:["製造年から1年後・その後毎年","製造年から3年後・その後1年ごと","製造年から5年後・その後1年ごと","製造年から10年後のみ"], description:"加圧式消火器（粉末以外）の内部および機能確認の実施時期", law:"消防法施行規則 第31条の6第3項\n加圧式消火器（粉末を除く）は製造年から3年を経過したもの以降、1年ごとに内部・機能確認を行う。"},
+    {ans:"製造年から3年後・その後1年ごと", choices:["製造年から1年後・その後毎年","製造年から3年後・その後1年ごと","製造年から5年後・その後2年ごと","製造年から8年後のみ"], description:"加圧式消火器（粉末）の内部および機能確認の実施時期", law:"消防法施行規則 第31条の6第3項\n加圧式粉末消火器は製造年から3年を経過したもの以降、1年ごとに内部・機能確認を行う。"},
+    {ans:"10年", description:"消火器の耐用年数（使用期限の目安）", choices:["5年","8年","10年","15年"], law:"消防用設備等の技術上の基準に関する政令\n消火器の使用期限は製造年から概ね10年とされており、超えた場合は交換が推奨される。"},
+    {ans:"1年に1回", choices:["6ヶ月に1回","1年に1回","2年に1回","3年に1回"], description:"特定防火対象物における消防用設備等の点検結果報告の頻度", law:"消防法第17条の3の3\n特定防火対象物は1年に1回、点検結果を消防署長に報告しなければならない。"},
+    {ans:"3年に1回", choices:["1年に1回","2年に1回","3年に1回","5年に1回"], description:"非特定防火対象物における消防用設備等の点検結果報告の頻度", law:"消防法第17条の3の3\n非特定防火対象物は3年に1回、点検結果を消防署長に報告しなければならない。"},
+    {ans:"製造年から10年経過後は廃棄または水圧試験", choices:["製造年から5年で廃棄","製造年から10年経過後は廃棄または水圧試験","製造年から15年で廃棄","年数に関係なく外観で判断"], description:"蓄圧式消火器の容器に関する耐圧試験の規定", law:"消防法施行規則 第31条の6\n蓄圧式消火器は製造年から10年を経過したものは廃棄するか水圧試験を実施すること。"},
+    {ans:"消防設備士または消防設備点検資格者", choices:["防火管理者","建物オーナー","消防設備士または消防設備点検資格者","消防署員のみ"], description:"消火器の法定点検を実施できる資格者", law:"消防法第17条の3の3\n消防用設備等の点検は消防設備士または消防設備点検資格者が実施しなければならない。"},
+    {ans:"6ヶ月以内", choices:["1ヶ月以内","3ヶ月以内","6ヶ月以内","1年以内"], description:"消火器設置後に初回の外観点検を実施すべき期限", law:"消防法施行規則 第31条の6\n設置後最初の外観点検は6ヶ月以内に実施すること。"},
+    {ans:"製造後3年を超えるもの", choices:["製造後1年を超えるもの","製造後3年を超えるもの","製造後5年を超えるもの","製造後10年を超えるもの"], description:"蓄圧式消火器（粉末以外）で内部確認の対象となる製造年の基準", law:"消防法施行規則 第31条の6第3項\n蓄圧式消火器（粉末を除く）は製造後3年を超えるものを内部確認の対象とする。"},
+    {ans:"5年", choices:["1年","3年","5年","10年"], description:"消火器用消火薬剤（強化液）の交換目安年数", law:"消防用設備等点検基準\n強化液消火薬剤は概ね5年ごとに交換することが推奨されている。"},
+    {ans:"粉末消火薬剤は3年ごと", choices:["粉末消火薬剤は1年ごと","粉末消火薬剤は3年ごと","粉末消火薬剤は5年ごと","粉末消火薬剤は10年ごと"], description:"消火器用粉末消火薬剤の交換目安周期", law:"消防用設備等点検基準\n粉末消火薬剤は概ね3年ごとに交換することが推奨されている。"},
+    {ans:"製造年から5年後・その後1年ごと", choices:["製造年から3年後・その後1年ごと","製造年から5年後・その後1年ごと","製造年から8年後・その後1年ごと","製造年から10年後のみ"], description:"二酸化炭素消火器の容器弁・安全弁等の確認を行う時期", law:"消防法施行規則 第31条の6\n二酸化炭素消火器の容器弁等は製造年から5年を経過したものから1年ごとに確認すること。"},
+    {ans:"点検票に記録・保存する", choices:["口頭で報告するだけ","廃棄してよい","点検票に記録・保存する","写真撮影のみ"], description:"消火器の点検を実施した後に必要な措置", law:"消防法施行規則 第31条の6\n点検の結果は点検票に記録し、規定の期間保存しなければならない。"},
+    {ans:"3年間", choices:["1年間","2年間","3年間","5年間"], description:"消防用設備等の点検票の保存期間", law:"消防法施行規則 第31条の6\n消防用設備等の点検票は点検を行った日から3年間保存すること。"},
+    {ans:"蓄圧式の方が長い", choices:["加圧式の方が長い","蓄圧式の方が長い","どちらも同じ","種類による"], description:"蓄圧式と加圧式消火器の内部確認開始時期の比較", law:"消防法施行規則 第31条の6第3項\n蓄圧式粉末消火器は5年後から、加圧式粉末消火器は3年後から内部確認が始まるため、蓄圧式の方が開始が遅い（長い）。"},
+    {ans:"消防長または消防署長", choices:["都道府県知事","市町村長","消防長または消防署長","総務大臣"], description:"消防用設備等の点検結果の報告先", law:"消防法第17条の3の3\n消防用設備等の点検結果は消防長または消防署長に報告しなければならない。"}
+  ],
+  area: [
+    {ans:"50m²", choices:["25m²","50m²","100m²","150m²"], description:"耐火構造の飲食店（2項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n耐火構造の飲食店等は床面積50m²ごとに1能力単位として消火器の設置数を算定する。"},
+    {ans:"25m²", choices:["10m²","25m²","50m²","75m²"], description:"耐火構造でない飲食店（2項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n非耐火構造の飲食店等は床面積25m²ごとに1能力単位として消火器の設置数を算定する。"},
+    {ans:"150m²以上", choices:["50m²以上","100m²以上","150m²以上","300m²以上"], description:"消火器の設置義務が生じる飲食店（2項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一2項（飲食店等）は延べ面積150m²以上で消火器の設置義務が生じる。"},
+    {ans:"300m²以上", choices:["100m²以上","150m²以上","300m²以上","500m²以上"], description:"消火器の設置義務が生じる事務所（15項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一15項（事務所等）は延べ面積300m²以上で消火器の設置義務が生じる。"},
+    {ans:"150m²以上", choices:["50m²以上","100m²以上","150m²以上","300m²以上"], description:"消火器の設置義務が生じるホテル・旅館（5項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一5項（ホテル・旅館等）は延べ面積150m²以上で消火器の設置義務が生じる。"},
+    {ans:"100m²以上", choices:["50m²以上","100m²以上","150m²以上","300m²以上"], description:"消火器の設置義務が生じる病院・診療所（6項イ）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一6項イ（病院等）は延べ面積100m²以上で消火器の設置義務が生じる。"},
+    {ans:"200m²以上", choices:["100m²以上","150m²以上","200m²以上","300m²以上"], description:"消火器の設置義務が生じる共同住宅（5項ロ）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一5項ロ（共同住宅等）は延べ面積200m²以上で消火器の設置義務が生じる。"},
+    {ans:"100m²", choices:["25m²","50m²","100m²","150m²"], description:"耐火構造の事務所（15項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n耐火構造の事務所等は床面積100m²ごとに1能力単位として消火器の設置数を算定する。"},
+    {ans:"200m²以上", choices:["100m²以上","150m²以上","200m²以上","300m²以上"], description:"消火器の設置義務が生じる神社・寺院（11項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一11項（神社・寺院・教会等）は延べ面積200m²以上で消火器の設置義務が生じる。"},
+    {ans:"50m²", choices:["25m²","50m²","75m²","100m²"], description:"耐火構造でない事務所（15項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n非耐火構造の事務所等は床面積50m²ごとに1能力単位として消火器の設置数を算定する。"},
+    {ans:"延べ面積の合計で算定", choices:["最大室面積で算定","各室個別に算定","延べ面積の合計で算定","壁面積で算定"], description:"同一建物内に複数の用途がある場合の能力単位算定方法", law:"消防法施行令 第10条\n能力単位の算定は当該階の延べ面積の合計を基に行うこと。"},
+    {ans:"300m²以上", choices:["100m²以上","200m²以上","300m²以上","500m²以上"], description:"消火器の設置義務が生じる学校（7項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一7項（学校等）は延べ面積300m²以上で消火器の設置義務が生じる。"},
+    {ans:"200m²以上", choices:["100m²以上","150m²以上","200m²以上","300m²以上"], description:"消火器の設置義務が生じる図書館・博物館（8項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一8項（図書館・博物館等）は延べ面積200m²以上で消火器の設置義務が生じる。"},
+    {ans:"50m²", choices:["25m²","50m²","100m²","150m²"], description:"耐火構造の病院（6項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n耐火構造の病院等（6項）は床面積50m²ごとに1能力単位として算定する。"},
+    {ans:"25m²", choices:["10m²","25m²","50m²","100m²"], description:"耐火構造でない病院（6項）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n非耐火構造の病院等（6項）は床面積25m²ごとに1能力単位として算定する。"},
+    {ans:"能力単位A-1以上", choices:["能力単位A-0.5以上","能力単位A-1以上","能力単位A-2以上","能力単位A-3以上"], description:"消火器1本が有すべき最低能力単位（A火災基準）", law:"消防法施行令 第10条\n設置する消火器はA火災に対し能力単位1以上を有するものとすること。"},
+    {ans:"150m²以上", choices:["50m²以上","100m²以上","150m²以上","200m²以上"], description:"消火器の設置義務が生じる百貨店・マーケット（4項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一4項（百貨店等）は延べ面積150m²以上で消火器の設置義務が生じる。"},
+    {ans:"附加設置が必要", choices:["設置免除になる","附加設置が必要","設置本数が半減する","大型消火器1本で代替できる"], description:"防火対象物に少量危険物や指定可燃物を貯蔵する場合の消火器設置に関する扱い", law:"消防法施行令 第10条第2項\n少量危険物・指定可燃物の貯蔵・取扱い箇所には消火器を附加して設置しなければならない。"},
+    {ans:"300m²以上", choices:["150m²以上","200m²以上","300m²以上","500m²以上"], description:"消火器の設置義務が生じる工場・倉庫（12項）の延べ面積の下限", law:"消防法施行令 第10条第1項\n別表第一12項（工場・倉庫等）は延べ面積300m²以上で消火器の設置義務が生じる。"},
+    {ans:"100m²", choices:["50m²","100m²","150m²","200m²"], description:"耐火構造の共同住宅（5項ロ）における消火器1能力単位あたりの算定床面積", law:"消防法施行令 第10条別表第二\n耐火構造の共同住宅等は床面積100m²ごとに1能力単位として算定する。"}
+  ]
+};
+
+var catInfo = {
+  dist: {emoji:'📏', title:'距離編', label:'この説明の距離は？'},
+  time: {emoji:'⏱', title:'時間編', label:'この説明の時間は？'},
+  area: {emoji:'📐', title:'面積編', label:'この説明の面積は？'}
+};
+
+var currentCat=null, questions=[], current=0, score=0, answers=[], lawVisible=false;
+
+function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+function selectCategory(cat){
+  currentCat=cat;
+  var info=catInfo[cat];
+  document.getElementById('title-emoji').textContent=info.emoji;
+  document.getElementById('title-h1').textContent=info.title;
+  show('title-screen');
+}
+
+function startQuiz(){
+  var data=shuffle(allData[currentCat]);
+  questions=data.map(function(q){
+    return {description:q.description, law:q.law, ans:q.ans, choices:shuffle(q.choices)};
+  });
+  current=0; score=0; answers=[];
+  document.getElementById('q-label').textContent=catInfo[currentCat].label;
+  show('quiz-screen'); renderQ();
+}
+
+function show(id){['top-screen','title-screen','quiz-screen','result-screen'].forEach(function(s){document.getElementById(s).classList.add('hidden');});document.getElementById(id).classList.remove('hidden');}
+
+function renderQ(){
+  var q=questions[current], total=questions.length;
+  document.getElementById('q-counter').textContent='問題 '+(current+1)+' / '+total;
+  document.getElementById('q-score').textContent='正解 '+score+'問';
+  document.getElementById('progress-bar').style.width=(current/total*100)+'%';
+  document.getElementById('q-text').textContent=q.description;
+  document.getElementById('feedback').classList.add('hidden');
+  lawVisible=false;
+  var c=document.getElementById('choices'); c.innerHTML='';
+  q.choices.forEach(function(ch){
+    var btn=document.createElement('button');
+    btn.className='choice-btn'; btn.textContent=ch;
+    btn.addEventListener('click',(function(x){return function(){handleSelect(x);};})(ch));
+    c.appendChild(btn);
+  });
+}
+
+function handleSelect(choice){
+  var q=questions[current], correct=choice===q.ans;
+  if(correct) score++;
+  answers.push({description:q.description, law:q.law, ans:q.ans, chosen:choice, correct:correct});
+  document.querySelectorAll('.choice-btn').forEach(function(btn){
+    btn.disabled=true;
+    if(btn.textContent===q.ans) btn.classList.add('correct');
+    else if(btn.textContent===choice) btn.classList.add('wrong');
+  });
+  document.getElementById('feedback').classList.remove('hidden');
+  var label=document.getElementById('result-label');
+  if(correct){label.textContent='✓ 正解！'; label.className='result-label result-correct';}
+  else{label.textContent='✗ 不正解　正解：'+q.ans; label.className='result-label result-wrong';}
+  document.getElementById('law-text').textContent=q.law;
+  document.getElementById('law-box').classList.add('hidden');
+  document.getElementById('law-toggle').classList.remove('open');
+  document.getElementById('law-toggle-text').textContent='📋 法的根拠・解説を見る';
+  document.getElementById('law-arrow').textContent='▼';
+  document.getElementById('btn-next').textContent=current+1>=questions.length?'結果を見る 🏁':'次の問題 →';
+}
+
+function toggleLaw(){
+  lawVisible=!lawVisible;
+  document.getElementById('law-box').classList.toggle('hidden',!lawVisible);
+  document.getElementById('law-toggle').classList.toggle('open',lawVisible);
+  document.getElementById('law-toggle-text').textContent=lawVisible?'📋 法的根拠・解説を隠す':'📋 法的根拠・解説を見る';
+  document.getElementById('law-arrow').textContent=lawVisible?'▲':'▼';
+}
+
+function nextQ(){if(current+1>=questions.length){showResult();}else{current++; renderQ();}}
+
+function showResult(){
+  show('result-screen');
+  var total=questions.length, pct=Math.round(score/total*100);
+  var emoji,rank,color;
+  if(pct===100){emoji='🏆';rank='消防設備士マスター';color='#ff6b35';}
+  else if(pct>=80){emoji='🔥';rank='消防士エキスパート';color='#f7c948';}
+  else if(pct>=60){emoji='⭐';rank='消防士見習い';color='#6ec6ff';}
+  else{emoji='📖';rank='要復習';color='#a09080';}
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-rank').textContent=rank;
+  document.getElementById('result-rank').style.color=color;
+  document.getElementById('result-score-big').innerHTML=score+' <span class="result-score-total">/ '+total+'</span>';
+  document.getElementById('result-pct').textContent=pct+'%';
+  document.getElementById('result-pct').style.color=color;
+  document.getElementById('review-list').innerHTML=answers.map(function(a){
+    return '<div class="review-item"><span class="review-icon">'+(a.correct?'✓':'✗')+'</span><div>'+
+    '<div class="review-desc">'+a.description+'</div>'+
+    '<div class="review-ans" style="color:'+(a.correct?'#7fffaa':'#ffaaaa')+'">'+(a.correct?a.ans:a.chosen+' → 正解: '+a.ans)+'</div>'+
+    '<div class="review-law">'+a.law.split('\n')[0]+'</div></div></div>';
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('btn-back').addEventListener('click',function(){show('top-screen');});
+  document.getElementById('btn-start').addEventListener('click',function(){startQuiz();});
+  document.getElementById('btn-next').addEventListener('click',function(){nextQ();});
+  document.getElementById('law-toggle').addEventListener('click',function(){toggleLaw();});
+  document.getElementById('btn-retry').addEventListener('click',function(){startQuiz();});
+  document.getElementById('btn-top').addEventListener('click',function(){show('top-screen');});
+});
+</script>
+</body>
+</html>
